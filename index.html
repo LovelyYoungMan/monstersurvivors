@@ -339,7 +339,10 @@
               src="https://cloud.onlinegames.io/games/2025/unity/monster-survivors/index-og.html"
               class="absolute top-0 left-0 w-full h-full"
               frameborder="0"
-              allowfullscreen
+              allowfullscreen="true"
+              webkitallowfullscreen="true"
+              mozallowfullscreen="true"
+              allow="fullscreen"
               id="game-iframe"
             ></iframe>
             <!-- 全屏切换按钮 -->
@@ -920,12 +923,82 @@
         // 全屏功能
         const fullscreenBtn = document.getElementById("fullscreen-btn");
         const gameIframe = document.getElementById("game-iframe");
+        const gameContainer = document.getElementById("game-container");
         const fullscreenIcon = document.getElementById("fullscreen-icon");
+        
+        // 检测是否为移动设备
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         if (fullscreenBtn && gameIframe) {
           fullscreenBtn.addEventListener("click", function() {
-            toggleFullScreen(gameIframe);
+            // 对于移动设备，尝试使用不同的方法
+            if (isMobile) {
+              toggleMobileFullScreen(gameIframe);
+            } else {
+              toggleFullScreen(gameIframe);
+            }
           });
+        }
+        
+        // 移动设备全屏切换函数
+        function toggleMobileFullScreen(element) {
+          try {
+            if (!document.fullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+              
+              // iOS Safari特殊处理
+              if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                element.webkitEnterFullscreen && element.webkitEnterFullscreen();
+              } else {
+                // 其他移动设备
+                if (element.requestFullscreen) {
+                  element.requestFullscreen();
+                } else if (element.webkitRequestFullscreen) {
+                  element.webkitRequestFullscreen();
+                } else if (element.mozRequestFullScreen) {
+                  element.mozRequestFullScreen();
+                } else if (element.msRequestFullscreen) {
+                  element.msRequestFullscreen();
+                }
+              }
+            } else {
+              if (document.exitFullscreen) {
+                document.exitFullscreen();
+              } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+              } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+              } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+              }
+            }
+          } catch (error) {
+            console.log("Fullscreen error: ", error);
+            // 后备方法，尝试将容器放大到整个视口
+            if (gameContainer.style.position !== 'fixed') {
+              gameContainer.style.position = 'fixed';
+              gameContainer.style.top = '0';
+              gameContainer.style.left = '0';
+              gameContainer.style.width = '100%';
+              gameContainer.style.height = '100%';
+              gameContainer.style.zIndex = '9999';
+              gameContainer.style.backgroundColor = 'black';
+              gameContainer.style.padding = '0';
+              document.body.style.overflow = 'hidden';
+            } else {
+              gameContainer.style.position = '';
+              gameContainer.style.top = '';
+              gameContainer.style.left = '';
+              gameContainer.style.width = '';
+              gameContainer.style.height = '';
+              gameContainer.style.zIndex = '';
+              gameContainer.style.backgroundColor = '';
+              gameContainer.style.padding = '';
+              document.body.style.overflow = '';
+            }
+          }
         }
         
         // 全屏切换函数
