@@ -333,13 +333,37 @@
           <div
             class="relative w-full overflow-hidden"
             style="padding-top: 56.25%"
+            id="game-container"
           >
             <iframe
               src="https://cloud.onlinegames.io/games/2025/unity/monster-survivors/index-og.html"
               class="absolute top-0 left-0 w-full h-full"
               frameborder="0"
               allowfullscreen
+              id="game-iframe"
             ></iframe>
+            <!-- 全屏切换按钮 -->
+            <button
+              id="fullscreen-btn"
+              class="absolute bottom-4 right-4 bg-game-primary/80 hover:bg-game-primary text-white p-2 rounded-full transition-all duration-300 z-10"
+              title="全屏/退出全屏"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                id="fullscreen-icon"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -877,7 +901,7 @@
           mobileMenu.classList.toggle("hidden");
         });
 
-        // Close mobile menu when clicking on a menu item
+        // 移动端菜单关闭功能
         const mobileMenuItems = mobileMenu.querySelectorAll("a");
         mobileMenuItems.forEach((item) => {
           item.addEventListener("click", function () {
@@ -885,13 +909,90 @@
           });
         });
 
-        // 初始化AOS动画库，设置更好的参数
+        // 初始化AOS动画库
         AOS.init({
           duration: 800,
           easing: "ease-in-out",
           once: false,
           mirror: true,
         });
+        
+        // 全屏功能
+        const fullscreenBtn = document.getElementById("fullscreen-btn");
+        const gameIframe = document.getElementById("game-iframe");
+        const fullscreenIcon = document.getElementById("fullscreen-icon");
+        
+        if (fullscreenBtn && gameIframe) {
+          fullscreenBtn.addEventListener("click", function() {
+            toggleFullScreen(gameIframe);
+          });
+        }
+        
+        // 全屏切换函数
+        function toggleFullScreen(element) {
+          if (!document.fullscreenElement && 
+              !document.mozFullScreenElement && 
+              !document.webkitFullscreenElement && 
+              !document.msFullscreenElement) {
+            // 进入全屏
+            if (element.requestFullscreen) {
+              element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) { // Firefox
+              element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
+              element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { // IE/Edge
+              element.msRequestFullscreen();
+            }
+          } else {
+            // 退出全屏
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+              document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+              document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+              document.msExitFullscreen();
+            }
+          }
+        }
+        
+        // 监听全屏变化事件
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+        document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+        document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+        document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+        
+        function handleFullscreenChange() {
+          const isFullScreen = Boolean(
+            document.fullscreenElement || 
+            document.webkitFullscreenElement || 
+            document.mozFullScreenElement ||
+            document.msFullscreenElement
+          );
+          if (fullscreenIcon) {
+            if (isFullScreen) {
+              fullscreenIcon.innerHTML = `
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              `;
+            } else {
+              fullscreenIcon.innerHTML = `
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
+                />
+              `;
+            }
+          }
+        }
       });
     </script>
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
